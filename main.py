@@ -1,7 +1,8 @@
 import shutil
+from updateablezipfile import UpdateableZipFile
 from Bio.PDB import *
-from zipfile import ZipFile
 from ModelParser import *
+import os
 
 done = False
 
@@ -14,13 +15,26 @@ while not done:
     except:
         print("3mf file doesn't exist")
 
-with ZipFile(modelFileName + ".zip", "r") as f:
+with UpdateableZipFile(modelFileName + ".zip", "r") as f:
     with open('object_1.model', "wb") as file:
         file.write(f.read("3D/Objects/object_1.model"))
 
 modelParser = ModelParser()
 modelParser.parse_from_file("object_1.model")
 
-parser = PDBParser()
-structure = parser.get_structure("test", "test.pdb").get_atoms()
-pass
+for face in modelParser.faces:
+    face.filament = "8"
+
+modelParser.object_to_model()
+
+shutil.copyfile("object_1_new.model", "object_1.model")
+os.remove("object_1_new.model")
+
+with UpdateableZipFile(modelFileName + ".zip", "a") as f:
+    f.write("object_1.model", "3D/Objects/object_1.model")
+
+shutil.copyfile(modelFileName + ".zip", modelFileName + ".3mf")
+os.remove("test.zip")
+os.remove("object_1.model")
+
+

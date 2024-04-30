@@ -17,6 +17,7 @@ class ModelParser:
     def __init__(self):
         self.vertices = []
         self.faces = []
+        self.fileName = ""
 
     def getValue(self, string, index):
         value = ""
@@ -27,10 +28,7 @@ class ModelParser:
 
     def parse_from_file(self, fileName):
         file = open(fileName)
-        i = 0
         for line in file:
-            if i == 2955:
-                pass
             if line.__contains__('vertex'):
                 xInd = line.index('x=') + 3
                 yInd = line.index('y=') + 3
@@ -47,5 +45,21 @@ class ModelParser:
                 v2 = self.vertices[int(self.getValue(line, v2Ind))]
                 v3 = self.vertices[int(self.getValue(line, v3Ind))]
                 self.faces.append(Face(v1, v2, v3))
-            i += 1
+        self.fileName = fileName
 
+    def object_to_model(self):
+        file = open(self.fileName)
+        newFile = open(self.fileName[:-6] + "_new.model", "w+")
+        faceNum = 0
+        for line in file:
+            if not line.__contains__('triangle '):
+                newFile.write(line)
+            else:
+                if line.__contains__("paint_color"):
+                    newFile.write(line)
+                    faceNum += 1
+                else:
+                    filament = self.faces[faceNum].filament
+                    newLine = line[:-3] + " paint_color=\"" + filament + "\"" + line[-3:]
+                    newFile.write(newLine)
+                    faceNum += 1
