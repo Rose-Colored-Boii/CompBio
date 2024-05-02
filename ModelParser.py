@@ -13,12 +13,14 @@ class Face:
         self.filament = None
 
 
+# Class to parse .model files
 class ModelParser:
     def __init__(self):
         self.vertices = []
         self.faces = []
         self.fileName = ""
 
+    # Helper function to extract value from specific field
     def getValue(self, string, index):
         value = ""
         while string[index] != "\"":
@@ -29,6 +31,7 @@ class ModelParser:
     def parse_from_file(self, fileName):
         file = open(fileName)
         for line in file:
+            # Extract vertices of model
             if line.__contains__('vertex'):
                 xInd = line.index('x=') + 3
                 yInd = line.index('y=') + 3
@@ -37,6 +40,7 @@ class ModelParser:
                 y = float(self.getValue(line, yInd))
                 z = float(self.getValue(line, zInd))
                 self.vertices.append(Vertex(x, y, z))
+            # Extract faces of model
             elif line.__contains__('triangle '):
                 v1Ind = line.index('v1') + 4
                 v2Ind = line.index('v2') + 4
@@ -48,6 +52,7 @@ class ModelParser:
         self.fileName = fileName
 
     def object_to_model(self):
+        # Write changes back to file
         file = open(self.fileName)
         newFile = open(self.fileName[:-6] + "_new.model", "w+")
         faceNum = 0
@@ -59,7 +64,11 @@ class ModelParser:
                     newFile.write(line)
                     faceNum += 1
                 else:
+                    # If filament field changed, write new paint color out to model
                     filament = self.faces[faceNum].filament
-                    newLine = line[:-3] + " paint_color=\"" + filament + "\"" + line[-3:]
-                    newFile.write(newLine)
+                    if filament is not None:
+                        newLine = line[:-3] + " paint_color=\"" + filament + "\"" + line[-3:]
+                        newFile.write(newLine)
+                    else:
+                        newFile.write(line)
                     faceNum += 1
