@@ -15,32 +15,38 @@ while not done:
     except:
         print("3mf file doesn't exist")
 
+modelName = ""
+
 # Extract .model file from zip
 with UpdateableZipFile(modelFileName + ".zip", "r") as f:
-    with open('object_1.model', "wb") as file:
-        file.write(f.read("3D/Objects/object_1.model"))
+    fileNames = f.namelist()
+    for name in fileNames:
+        if name.endswith(".model") and name.startswith("3D/Objects"):
+            file = open("temp.model", "wb")
+            file.write(f.read(name))
+            modelName = name
+            break
 
 # Parse model file
 modelParser = ModelParser()
-modelParser.parse_from_file("object_1.model")
+modelParser.parse_from_file("temp.model")
 
-for face in modelParser.faces:
-    f.filament = "8"
+modelParser.load_color_data("1ce6.glb")
 
 # Write model back to file
 modelParser.object_to_model()
 
 # Overwrite model file
-shutil.copyfile("object_1_new.model", "object_1.model")
+shutil.copyfile("temp_new.model", "temp.model")
 
 # Replace model file in zip
 with UpdateableZipFile(modelFileName + ".zip", "a") as f:
-    f.write("object_1.model", "3D/Objects/object_1.model")
+    f.write("temp.model", name)
 
 # Rename back to 3MF and remove redundant files
 shutil.copyfile(modelFileName + ".zip", modelFileName + ".3mf")
 os.remove(modelFileName + ".zip")
-os.remove("object_1.model")
-os.remove("object_1_new.model")
+os.remove("temp.model")
+os.remove("temp_new.model")
 
 

@@ -3,9 +3,6 @@ Python script for writing color data to models of protein structures.
 Workflow:
 
 1) Download PDB file online (via RCSB, AlphaFold, etc.)
-2) Use tools like Chimera, PyMOL, etc. to export PDB to STL
-3) Import STL file into BambuStudio and save as project (.3mf)
-4) Run script and select 3mf file
-
-Supported color mappings:
-1) Subchains of protein structure (WIP)
+2) Use tools like Chimera, PyMOL, etc. to export PDB to GLTF glb file
+3) Run script to convert to obj file
+4) Open obj in Bambu Studio and map colors to filaments
