@@ -1,20 +1,14 @@
 import pymeshlab
-
-ms = pymeshlab.MeshSet()
+import os
 
 done = False
+name = input("Enter UniProt name / ID: ")
 
-modelFileName = ""
+os.system("chimerax --nogui --exit --nostatus --script \"SubChains.py " + name + "\"")
 
-# Open glb file
-while not done:
-    modelFileName = input("Name of glb file (without extension): ")
-
-    try:
-        ms.load_new_mesh(modelFileName + ".glb", load_in_a_single_layer=True)
-        done = True
-    except:
-        print("glb file doesn't exist")
+# Load mesh
+ms = pymeshlab.MeshSet()
+ms.load_new_mesh(name + ".glb", load_in_a_single_layer=True)
 
 # Saves mesh as obj file with vertex color data
-ms.save_current_mesh(modelFileName + ".obj")
+ms.save_current_mesh(name + ".obj")
